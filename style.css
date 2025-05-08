@@ -1,104 +1,76 @@
 body {
   margin: 0;
-  font-family: 'Inter', sans-serif;
-  background: #0d0d0d;
-  color: #f0f0f0;
+  font-family: "Segoe UI", sans-serif;
+  background: #121212;
+  color: #fff;
   display: flex;
-  justify-content: center;
-  padding: 1rem;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
 }
 
 .container {
+  padding: 20px;
   width: 100%;
-  max-width: 720px;
+  max-width: 960px;
 }
 
 h1 {
   text-align: center;
-  margin-bottom: 1rem;
-  color: #aaf;
+  margin-bottom: 20px;
+  font-size: 28px;
+  color: #e2bfff;
 }
 
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 10px;
   justify-content: center;
-  margin-bottom: 1rem;
+  margin-bottom: 20px;
 }
 
-.controls input[type="color"],
-.controls select,
-.controls button,
-.dropbtn {
-  background: #1a1a1a;
+input[type="file"],
+input[type="color"],
+select,
+button {
+  padding: 8px 10px;
   border: none;
+  border-radius: 6px;
+  background: #222;
   color: #fff;
-  padding: 0.5rem 1rem;
-  border-radius: 8px;
+  font-size: 14px;
   cursor: pointer;
 }
 
-textarea {
-  width: 100%;
-  height: 200px;
-  background: #121212;
-  color: #0f0;
-  border: none;
-  padding: 1rem;
-  font-family: monospace;
-  font-size: 0.9rem;
-  border-radius: 8px;
+input[type="color"] {
+  width: 45px;
+  padding: 0;
+  border: 1px solid #444;
 }
 
-.preview {
-  background: #fff;
-  padding: 1rem;
-  text-align: center;
-  border-radius: 8px;
-  transition: background 0.3s ease;
-}
-
-#errorMsg {
-  margin-top: 10px;
-  color: #ff6b6b;
-  font-size: 0.85rem;
-  text-align: center;
-}
-
-.icon-button {
-  background: #1a1a1a;
-  border-radius: 50%;
-  padding: 0.5rem;
+.upload-icon {
+  background: #333;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: white;
   cursor: pointer;
-  font-size: 1.2rem;
-}
-
-.dropdown {
-  position: relative;
   display: inline-block;
 }
 
-.dropdown-content {
-  display: none;
-  position: absolute;
-  background-color: #1a1a1a;
-  min-width: 80px;
-  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-  z-index: 1;
+.svg-box {
+  background: white;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  position: relative;
+  overflow: hidden;
+  border: 2px dashed #888;
+  padding: 10px;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
-.dropdown-content a {
-  color: #fff;
-  padding: 8px 12px;
-  text-decoration: none;
-  display: block;
-}
-
-.dropdown-content a:hover {
-  background-color: #333;
-}
-
-.dropdown:hover .dropdown-content {
-  display: block;
+.svg-box svg {
+  width: 100%;
+  height: 100%;
 }

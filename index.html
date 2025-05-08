@@ -1,47 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>SVG Pro Converter</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>SVG Pro Converter</h1>
 
     <div class="controls">
-      <input type="file" id="upload" accept=".svg">
-      <input type="file" id="logoUpload" accept="image/*" hidden>
-      <label for="logoUpload" title="Upload Logo" class="icon-button">🏷️</label>
-
-      <input type="color" id="colorPicker" value="#8000ff" title="Change Fill Color">
-      <select id="ratioSelector" title="Aspect Ratio">
-        <option value="1">1:1</option>
-        <option value="4/3">4:3</option>
-        <option value="16/9">16:9</option>
-        <option value="2">2:1</option>
+      <input type="file" id="fileInput" accept=".svg" />
+      <input type="color" id="colorInput" title="Change Fill Color" />
+      <select id="ratioSelect">
+        <option value="1:1">1:1</option>
+        <option value="4:5">4:5</option>
+        <option value="3:4">3:4</option>
+        <option value="16:9">16:9</option>
+        <option value="9:16">9:16</option>
       </select>
-
-      <button onclick="toggleBackground()">Toggle BG</button>
-      <button onclick="resetSVG()">Reset</button>
-
-      <div class="dropdown">
-        <button class="dropbtn">⬇️ Export</button>
-        <div class="dropdown-content">
-          <a href="#" onclick="downloadImage('jpg')">JPG</a>
-          <a href="#" onclick="downloadImage('png')">PNG</a>
-          <a href="#" onclick="downloadPDF()">PDF</a>
-        </div>
-      </div>
+      <select id="exportFormat" title="Export Type">
+        <option value="jpg">JPG</option>
+        <option value="png">PNG</option>
+        <option value="pdf">PDF</option>
+      </select>
+      <label class="upload-icon">
+        Upload Logo
+        <input type="file" id="logoInput" accept="image/*" hidden />
+      </label>
+      <button id="toggleBgBtn">Toggle BG</button>
+      <button id="resetBtn">Reset</button>
+      <button id="exportBtn">⬇ Download</button>
     </div>
 
-    <div class="editor-preview">
-      <textarea id="codeEditor" spellcheck="false"></textarea>
-      <div id="preview" class="preview" contenteditable="false"></div>
-    </div>
-
-    <div id="errorMsg"></div>
+    <div id="svgDisplay" class="svg-box"></div>
   </div>
 
   <script src="script.js"></script>

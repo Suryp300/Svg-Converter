@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SVG & Image Editor</title>
+  <style>
+    body {
+      margin: 0;
+      background: #121212;
+      color: #fff;
+      font-family: sans-serif;
+    }
+    #editor {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+    canvas {
+      border: 1px solid #444;
+      margin-top: 20px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .controls button, .controls input {
+      padding: 8px;
+      background: #1e1e1e;
+      color: #fff;
+      border: 1px solid #333;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div id="editor">
+    <h2>Advanced Image Editor</h2>
+    <input type="file" id="upload" accept="image/*, .svg">
+    <canvas id="canvas" width="500" height="500"></canvas>
+    <div class="controls">
+      <button onclick="cropImage()">Crop</button>
+      <button onclick="applyFilter()">Filter</button>
+      <button onclick="addFrame()">Add Frame</button>
+      <button onclick="erase()">Erase</button>
+      <button onclick="addText()">Add Text</button>
+      <input type="color" id="colorPicker" title="Change Fill Color">
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const upload = document.getElementById('upload');
+    let img = new Image();
+
+    upload.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        img.onload = function() {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          ctx.drawImage(img, 0, 0);
+        }
+        img.src = event.target.result;
+      }
+      reader.readAsDataURL(file);
+    });
+
+    function cropImage() {
+      const cropSize = 200;
+      const cropped = ctx.getImageData(0, 0, cropSize, cropSize);
+      canvas.width = cropSize;
+      canvas.height = cropSize;
+      ctx.putImageData(cropped, 0, 0);
+    }
+
+    function applyFilter() {
+      ctx.filter = 'grayscale(100%)';
+      ctx.drawImage(img, 0, 0);
+    }
+
+    function addFrame() {
+      ctx.lineWidth = 10;
+      ctx.strokeStyle = '#fff';
+      ctx.strokeRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function erase() {
+      ctx.clearRect(100, 100, 100, 100); // Sample erase area
+    }
+
+    function addText() {
+      ctx.font = "30px Arial";
+      ctx.fillStyle = "#ff4081";
+      ctx.fillText("Your Text", 50, 50);
+    }
+
+    document.getElementById("colorPicker").addEventListener("input", (e) => {
+      ctx.fillStyle = e.target.value;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    });
+  </script>
+</body>
+</html>

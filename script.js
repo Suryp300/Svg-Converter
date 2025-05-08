@@ -1,126 +1,122 @@
-const fileInput = document.getElementById("fileInput");
-const svgDisplay = document.getElementById("svgDisplay");
-const exportBtn = document.getElementById("exportBtn");
-const resetBtn = document.getElementById("resetBtn");
-const toggleBgBtn = document.getElementById("toggleBgBtn");
-const colorInput = document.getElementById("colorInput");
-const logoInput = document.getElementById("logoInput");
-const formatSelect = document.getElementById("exportFormat");
-const ratioSelect = document.getElementById("ratioSelect");
-
-let currentSvg = null;
+let svgContent = null;
 let bgWhite = true;
 
-fileInput.addEventListener("change", function () {
+document.getElementById("fileInput").addEventListener("change", handleSVGUpload);
+document.getElementById("colorInput").addEventListener("input", changeSVGColor);
+document.getElementById("toggleBgBtn").addEventListener("click", toggleBackground);
+document.getElementById("resetBtn").addEventListener("click", resetSVG);
+document.getElementById("exportBtn").addEventListener("click", exportImage);
+document.getElementById("logoInput").addEventListener("change", addLogo);
+document.getElementById("ratioSelect").addEventListener("change", changeAspectRatio);
+
+function handleSVGUpload(event) {
+  const file = event.target.files[0];
   const reader = new FileReader();
-  reader.onload = function (e) {
-    svgDisplay.innerHTML = e.target.result;
-    currentSvg = svgDisplay.querySelector("svg");
+  reader.onload = () => {
+    document.getElementById("svgDisplay").innerHTML = reader.result;
+    svgContent = document.querySelector("#svgDisplay svg");
     cleanSVG();
-    applyAspectRatio(ratioSelect.value);
   };
-  reader.readAsText(this.files[0]);
-});
+  reader.readAsText(file);
+}
 
-colorInput.addEventListener("input", function () {
-  if (currentSvg) {
-    applyColorToSVG(currentSvg, this.value);
+function cleanSVG() {
+  if (svgContent) {
+    svgContent.removeAttribute("width");
+    svgContent.removeAttribute("height");
+    svgContent.setAttribute("preserveAspectRatio", "xMidYMid meet");
   }
-});
+}
 
-toggleBgBtn.addEventListener("click", () => {
-  bgWhite = !bgWhite;
-  svgDisplay.style.backgroundColor = bgWhite ? "#fff" : "transparent";
-});
-
-resetBtn.addEventListener("click", () => {
-  svgDisplay.innerHTML = "";
-  fileInput.value = "";
-  currentSvg = null;
-});
-
-ratioSelect.addEventListener("change", function () {
-  applyAspectRatio(this.value);
-});
-
-logoInput.addEventListener("change", function () {
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const img = document.createElement("img");
-    img.src = e.target.result;
-    img.style.position = "absolute";
-    img.style.bottom = "10px";
-    img.style.right = "10px";
-    img.style.width = "50px";
-    img.style.height = "auto";
-    svgDisplay.appendChild(img);
-  };
-  reader.readAsDataURL(this.files[0]);
-});
-
-exportBtn.addEventListener("click", () => {
-  if (!currentSvg) return;
-
-  const format = formatSelect.value;
-  const serializer = new XMLSerializer();
-  const svgString = serializer.serializeToString(currentSvg);
-
-  const canvas = document.createElement("canvas");
-  const ctx = canvas.getContext("2d");
-  const img = new Image();
-  const width = currentSvg.viewBox.baseVal.width || 1024;
-  const height = currentSvg.viewBox.baseVal.height || 1024;
-  canvas.width = width;
-  canvas.height = height;
-
-  img.onload = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = bgWhite ? "#fff" : "transparent";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(img, 0, 0);
-
-    if (format === "pdf") {
-      const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
-      pdf.addImage(canvas.toDataURL("image/jpeg"), "JPEG", 0, 0, canvas.width, canvas.height);
-      pdf.save("export.pdf");
-    } else {
-      const link = document.createElement("a");
-      link.download = `export.${format}`;
-      link.href = canvas.toDataURL(`image/${format}`);
-      link.click();
-    }
-  };
-
-  const blob = new Blob([svgString], { type: "image/svg+xml;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  img.src = url;
-});
-
-// Helper Functions
-function applyColorToSVG(svg, color) {
-  const targets = svg.querySelectorAll("path, rect, circle, ellipse, polygon, polyline, line, text");
-  targets.forEach(el => {
-    if (el.hasAttribute("fill") && el.getAttribute("fill") !== "none") {
+function changeSVGColor(e) {
+  if (!svgContent) return;
+  const color = e.target.value;
+  svgContent.querySelectorAll("*").forEach(el => {
+    if (el.getAttribute("fill") && el.getAttribute("fill") !== "none") {
       el.setAttribute("fill", color);
     }
-    if (el.hasAttribute("stroke")) {
+    if (el.getAttribute("stroke") && el.getAttribute("stroke") !== "none") {
       el.setAttribute("stroke", color);
     }
   });
 }
 
-function cleanSVG() {
-  const rects = currentSvg.querySelectorAll("rect");
-  rects.forEach(r => {
-    const fill = r.getAttribute("fill");
-    if (fill === "#ffffff" || fill === "#fff" || fill === "white") {
-      r.remove();
-    }       
-  });
+function toggleBackground() {
+  const box = document.getElementById("svgDisplay");
+  bgWhite = !bgWhite;
+  box.style.background = bgWhite ? "#ffffff" : "transparent";
 }
 
-function applyAspectRatio(ratio) {
-  if (!svgDisplay) return;
-  let [w, h] = ratio.split(":").map(Number);
-  svgDisplay.style.aspectRatio = `${w} / ${h}`;
-}   
+function resetSVG() {
+  location.reload();
+}
+
+function exportImage() {
+  if (!svgContent) return;
+  const format = document.getElementById("exportFormat").value;
+  const svgElement = svgContent.cloneNode(true);
+  const svgData = new XMLSerializer().serializeToString(svgElement);
+  const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+  const url = URL.createObjectURL(svgBlob);
+
+  const canvas = document.createElement("canvas");
+  const ratio = getAspectRatio(document.getElementById("ratioSelect").value);
+  canvas.width = 1000;
+  canvas.height = 1000 * ratio;
+
+  const ctx = canvas.getContext("2d");
+  const img = new Image();
+  img.onload = () => {
+    ctx.fillStyle = bgWhite ? "#fff" : "transparent";
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+    if (format === "jpg" || format === "png") {
+      const type = format === "jpg" ? "image/jpeg" : "image/png";
+      const dataURL = canvas.toDataURL(type);
+      download(dataURL, `converted.${format}`);
+    } else if (format === "pdf") {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF();
+      pdf.addImage(canvas.toDataURL("image/jpeg"), "JPEG", 10, 10, 190, 190 / ratio);
+      pdf.save("converted.pdf");
+    }
+    URL.revokeObjectURL(url);
+  };
+  img.src = url;
+}
+
+function download(dataURL, name) {
+  const a = document.createElement("a");
+  a.href = dataURL;
+  a.download = name;
+  a.click();
+}
+
+function addLogo(event) {
+  const file = event.target.files[0];
+  const reader = new FileReader();
+  reader.onload = function () {
+    const logo = document.createElement("img");
+    logo.src = reader.result;
+    logo.style.position = "absolute";
+    logo.style.bottom = "10px";
+    logo.style.right = "10px";
+    logo.style.width = "60px";
+    logo.style.opacity = "0.8";
+    document.getElementById("svgDisplay").appendChild(logo);
+  };
+  reader.readAsDataURL(file);
+}
+
+function getAspectRatio(value) {
+  const [w, h] = value.split(":").map(Number);
+  return h / w;
+}
+
+function changeAspectRatio() {
+  const value = document.getElementById("ratioSelect").value;
+  const box = document.getElementById("svgDisplay");
+  const [w, h] = value.split(":");
+  box.style.aspectRatio = `${w} / ${h}`;
+    }
